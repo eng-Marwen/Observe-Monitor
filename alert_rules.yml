@@ -1,0 +1,25 @@
+groups:
+  - name: cpu-alerts
+    rules:
+      - alert: HighCPUUsage
+        expr: |
+          100 * (1 - avg by (instance) (
+            rate(node_cpu_seconds_total{mode="idle"}[30s])
+          )) > 5
+        for: 30s
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is above 5%."
+          
+  - name: node-exporter-alerts
+    rules:
+      - alert: NodeExporterDown
+        expr: up{job="node-exporter"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Node Exporter is down"
+          description: "Node Exporter on {{ $labels.instance }} is unreachable."
